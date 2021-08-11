@@ -13,7 +13,7 @@ public class FlooringMasteryDaoFileImpl implements UserIO, FlooringMasteryDao {
 
     final private Scanner console = new Scanner(System.in);
 
-    final private Map<Integer, Order> orders = new HashMap<>();
+    private Map<Integer, Order> orders = new HashMap<>();
     final private Map<String, Product> products = new HashMap<>();
     final private Map<String, StateTax> taxes = new HashMap<>();
 
@@ -152,7 +152,7 @@ public class FlooringMasteryDaoFileImpl implements UserIO, FlooringMasteryDao {
         out.flush();
         
         String orderAsText;
-        List<Order> orderList = this.getAllOrders(date);
+        List<Order> orderList = new ArrayList(orders.values());
         for (Order currentOrder : orderList) {
             // turn a Order into a String
             orderAsText = marshallOrder(currentOrder);
@@ -167,6 +167,7 @@ public class FlooringMasteryDaoFileImpl implements UserIO, FlooringMasteryDao {
 
     private void loadDatabase(String date, boolean newFile) throws FlooringMasteryPersistenceException {
         Scanner scanner;
+        orders = new HashMap<>();
         
         String path = ORDER_FILE + date + ".txt";
         // Create file if not found
@@ -191,34 +192,32 @@ public class FlooringMasteryDaoFileImpl implements UserIO, FlooringMasteryDao {
             } catch (IOException e) {
                 throw new FlooringMasteryPersistenceException("Could not load database data into memory.");
             }
-        } else {
-            try {
-                // Create Scanner for reading the file
-                scanner = new Scanner(
-                        new BufferedReader(
-                                new FileReader(path)));
-            } catch (FileNotFoundException e) {
-
-                throw new FlooringMasteryPersistenceException("Unable to locate file @ " + path + "\n");
-            }
-
-
-            String currentLine;
-
-            Order currentOrder;
-            // Skip the header.
-            if (scanner.hasNextLine())
-                scanner.nextLine();
-            while (scanner.hasNextLine()) {
-                currentLine = scanner.nextLine();
-
-                currentOrder = unmarshallOrder(currentLine);
-
-                orders.put(currentOrder.getOrderNumber(), currentOrder);
-            }
-            // close scanner
-            scanner.close();
         }
+        try {
+            // Create Scanner for reading the file
+            scanner = new Scanner(
+                    new BufferedReader(
+                            new FileReader(path)));
+        } catch (FileNotFoundException e) {
+
+            throw new FlooringMasteryPersistenceException("Unable to locate file @ " + path + "\n");
+        }
+
+
+        String currentLine;
+
+        Order currentOrder;
+        // Skip the header.
+        if (scanner.hasNextLine())
+            scanner.nextLine();
+        while (scanner.hasNextLine()) {
+            currentLine = scanner.nextLine();
+            currentOrder = unmarshallOrder(currentLine);
+
+            orders.put(currentOrder.getOrderNumber(), currentOrder);
+        }
+        // close scanner
+        scanner.close();
     }
     
     private Product unmarshallProduct(String productAsText) {
@@ -331,7 +330,7 @@ public class FlooringMasteryDaoFileImpl implements UserIO, FlooringMasteryDao {
 
     @Override
     public List<Order> getAllOrders(String date) throws FlooringMasteryPersistenceException {
-        loadDatabase(date, false);
+        loadDatabase(date, true);
         return new ArrayList(orders.values());
     }
 

@@ -46,7 +46,7 @@ public class FlooringMasteryController {
                     case 4:
                         removeOrder();
                         break;
-                    case 6:
+                    case 5:
                         keepGoing = false;
                         break;
                     default:
@@ -74,7 +74,24 @@ public class FlooringMasteryController {
             view.displayErrorMessage(e.getMessage());
             return;
         }
-     
+             
+        view.displayOrderList(orderList);
+    }
+    
+    /**
+     * 
+     * Displays the orders for a specific date.
+     * 
+     */
+    private void displayOrders(String date) {
+        List<Order> orderList;
+        try {
+            orderList = service.getAllOrders(date);
+        } catch (FlooringMasteryPersistenceException e) {
+            view.displayErrorMessage(e.getMessage());
+            return;
+        }
+             
         view.displayOrderList(orderList);
     }
     
@@ -106,7 +123,7 @@ public class FlooringMasteryController {
             } catch (FlooringMasteryPersistenceException e) {
             }
             
-            currentOrder = view.getNewOrderInfo(orderId, service.getProductData());
+            currentOrder = view.getNewOrderInfo(orderId, service.getProductData(), service.getStateData());
             
             try {
                 service.createOrder(currentOrder, date);
@@ -139,11 +156,16 @@ public class FlooringMasteryController {
         
         String date = view.getDateEntry();
         
+        displayOrders(date);
+        
         int orderId = view.getOrderIdChoice();
         Order order = service.getOrder(orderId, date);
-
+        
         view.displayOrder(order);
 
+        if (order == null)
+            return;
+        
         int editChoice = view.printEditMenuAndGetSelection();
         
         if (editChoice == 5)
@@ -151,7 +173,7 @@ public class FlooringMasteryController {
         
         Order changedOrder = new Order(order);
         
-        changedOrder = view.getNewOrderInfo(changedOrder, editChoice, service.getProductData());
+        changedOrder = view.getNewOrderInfo(changedOrder, editChoice, service.getProductData(), service.getStateData());
         
         // State, product type, area
         if (editChoice == 2 || editChoice == 3 || editChoice == 4)

@@ -91,6 +91,11 @@ public class FlooringMasteryServiceLayerImpl implements
     }
 
     @Override
+    public Map<String, StateTax> getStateData() throws FlooringMasteryPersistenceException {
+        return dao.getStateTaxData();
+    }
+    
+    @Override
     public Map<String, Product> getProductData() throws FlooringMasteryPersistenceException {
         return dao.getProductData();
     }

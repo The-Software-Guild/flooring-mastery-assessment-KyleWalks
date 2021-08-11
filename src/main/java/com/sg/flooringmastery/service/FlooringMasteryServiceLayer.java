@@ -3,6 +3,7 @@ package com.sg.flooringmastery.service;
 import com.sg.flooringmastery.dao.FlooringMasteryPersistenceException;
 import com.sg.flooringmastery.dto.Order;
 import com.sg.flooringmastery.dto.Product;
+import com.sg.flooringmastery.dto.StateTax;
 import java.util.List;
 import java.util.Map;
 
@@ -27,6 +28,9 @@ public interface FlooringMasteryServiceLayer {
             FlooringMasteryPersistenceException;
  
     Map<String, Product> getProductData() throws 
+            FlooringMasteryPersistenceException;
+    
+    Map<String, StateTax> getStateData() throws 
             FlooringMasteryPersistenceException;
     
     void computeFields(Order order) throws 

@@ -1,5 +1,6 @@
 package com.sg.flooringmastery.ui;
 
+import com.sg.flooringmastery.dto.StateTax;
 import com.sg.flooringmastery.dto.Order;
 import com.sg.flooringmastery.dto.Product;
 import java.math.BigDecimal;
@@ -48,17 +49,27 @@ public class FlooringMasteryView {
         return io.readInt("Please select from the above choices.", 1, 5);
     }
 
-    public Order getNewOrderInfo(int orderId, Map<String, Product> products) {
+    public Order getNewOrderInfo(int orderId, Map<String, Product> products, Map<String, StateTax> states) {
         String customerName = "";
         
         do {
             customerName = io.readString("Please enter the customer name", 1);
         } while (!checkString(customerName));
-        String state = io.readString("Please enter the state", 2);
-        
+        String state = null;
+        do {
+            state = io.readString("Please enter the state (e.g. TX)", 2);
+            if (states.get(state) == null)
+                io.print(state + " is not valid for sale.");
+        } while (states.get(state) == null);
         displayProducts(products);
         
-        String productType = io.readString("Please enter the product type");
+        String productType = null;
+        do {
+            productType = io.readString("Please enter the product type");
+            
+            if (products.get(productType) == null)
+                io.print(productType + " is not a valid product.");
+        } while(products.get(productType) == null);
         BigDecimal area = io.readBigDecimal("Please enter the area (min 100)", new BigDecimal("100"));
         
         Order currentOrder = new Order(orderId);
@@ -71,7 +82,7 @@ public class FlooringMasteryView {
         return currentOrder;
     }
     
-    public Order getNewOrderInfo(Order order, int propChoice, Map<String, Product> products) {
+    public Order getNewOrderInfo(Order order, int propChoice, Map<String, Product> products, Map<String, StateTax> states) {
         String propChange = "";
 
         switch (propChoice) {
@@ -81,11 +92,20 @@ public class FlooringMasteryView {
                 } while (!checkString(propChange));
                 break;
             case 2:
-                propChange = io.readString("Please enter the state", 2);
+                do {
+                    propChange = io.readString("Please enter the state (e.g. TX)", 2);
+                    if (states.get(propChange) == null)
+                        io.print(propChange + " is not valid for sale.");
+                } while (states.get(propChange) == null);
                 break;
             case 3:
                 displayProducts(products);
-                propChange = io.readString("Please enter the product type");
+                do {
+                    propChange = io.readString("Please enter the product type");
+
+                    if (products.get(propChange) == null)
+                        io.print(propChange + " is not a valid product.");
+                } while(products.get(propChange) == null);
                 break;
             case 4:
                 propChange = io.readBigDecimal("Please enter the area", new BigDecimal("100")).toString();
@@ -398,8 +418,12 @@ public class FlooringMasteryView {
         int index = 0;
 
         while (index < s.length() && !charFound) {
-            if (Character.isLetterOrDigit(s.charAt(index)) || s.charAt(index) != ',')
+            if (Character.isLetterOrDigit(s.charAt(index)) || s.charAt(index) == ',' || s.charAt(index) == '.')
                 charFound = true;
+            else {
+                charFound = false;
+                break;
+            }
 
             index++;
         }

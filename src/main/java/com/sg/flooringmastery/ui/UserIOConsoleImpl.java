@@ -44,7 +44,7 @@ public class UserIOConsoleImpl implements UserIO {
             } catch (NumberFormatException e) {
                 this.print("Input error. Please try again.");
             }
-        } while (stringValue.length() <= minLen);
+        } while (stringValue.length() < minLen);
         return stringValue;
     }
 
